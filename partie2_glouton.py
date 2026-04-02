@@ -1,6 +1,7 @@
 # partie2_glouton.py
 
 from itertools import combinations
+import matplotlib.pyplot as plt
 
 joueurs = [
     {"nom": "Alice", "score": 88, "salaire": 1200, "poids": 72},
@@ -109,11 +110,6 @@ def budget_valide(equipe_a, equipe_b):
 
 
 def faisable_restante(equipe_a, equipe_b, restants):
-    """
-    Vérifie s'il existe au moins une façon de compléter les équipes
-    avec les joueurs restants.
-    Comme on n'a que 8 joueurs, on peut tester toutes les petites combinaisons.
-    """
     manque_a = NB_JOUEURS_EQUIPE - len(equipe_a)
     manque_b = NB_JOUEURS_EQUIPE - len(equipe_b)
 
@@ -200,7 +196,6 @@ def strategie_score_normalise_pondere(ws=0.6, wsal=0.25, wp=0.15):
 
         for joueur in candidats_tries:
             essais = []
-
             salaire_global = sum(j["salaire"] for j in equipe_a + equipe_b)
 
             if peut_ajouter(joueur, equipe_a, salaire_global):
@@ -296,6 +291,30 @@ def afficher_tableau_comparatif(resultats):
     )
 
 
+def graphique_comparaison_algorithmes(resultats):
+    """
+    Graphique 1 :
+    comparaison des scores obtenus par les stratégies gloutonnes et PuLP.
+    """
+    scores = {
+        "Score / salaire": resultats["Ratio score / salaire"]["score_total"] if resultats["Ratio score / salaire"] else 0,
+        "Score / poids": resultats["Ratio score / poids"]["score_total"] if resultats["Ratio score / poids"] else 0,
+        "Score pondéré": resultats["Score normalisé pondéré"]["score_total"] if resultats["Score normalisé pondéré"] else 0,
+        "PuLP": SCORE_PULP,
+    }
+
+    noms = list(scores.keys())
+    valeurs = list(scores.values())
+
+    plt.figure()
+    plt.bar(noms, valeurs)
+    plt.axhline(y=SCORE_PULP, linestyle="--", label="Score optimal PuLP")
+    plt.title("Comparaison des algorithmes")
+    plt.ylabel("Score total")
+    plt.legend()
+    plt.show()
+
+
 def main():
     resultats = {
         "Score absolu": strategie_score_absolu(),
@@ -308,6 +327,7 @@ def main():
         afficher_resultat(nom, resultat)
 
     afficher_tableau_comparatif(resultats)
+    graphique_comparaison_algorithmes(resultats)
 
 
 if __name__ == "__main__":
